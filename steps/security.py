@@ -26,13 +26,13 @@ def update_security(console: Console):
         console.print(Text(f"Erreur lors de l'installation de unattended-upgrades: {e}", style="red"))
         return
 
-    # # Exécuter unattended-upgrade en mode dry-run # TODO à réparer => ModuleNotFoundError: No module named 'apt'
-    # try:
-    #     subprocess.run(["unattended-upgrade", "-d", "-v", "--dry-run"], check=True)
-    #     console.print(Text("Mises à jour de sécurité vérifiées en mode dry-run.", style="green"))
-    # except subprocess.CalledProcessError as e:
-    #     console.print(Text(f"Erreur lors de l'exécution de unattended-upgrade en mode dry-run: {e}", style="red"))
-    #     return
+    # Exécuter unattended-upgrade en mode dry-run
+    try:
+        subprocess.run(["unattended-upgrade", "-d", "-v", "--dry-run"], check=True)
+        console.print(Text("Mises à jour de sécurité vérifiées en mode dry-run.", style="green"))
+    except subprocess.CalledProcessError as e:
+        console.print(Text(f"Erreur lors de l'exécution de unattended-upgrade en mode dry-run: {e}", style="red"))
+        return
 
     # Décommenter les lignes spécifiques dans le fichier de configuration
     config_file = "/etc/apt/apt.conf.d/50unattended-upgrades"
@@ -42,10 +42,15 @@ def update_security(console: Console):
 
         with open(config_file, "w", encoding="utf-8") as file:
             for line in lines:
-                if "Unattended-Upgrade::Remove-Unused-Kernel-Packages" in line:
-                    line = line.replace("//", "")
                 if "Unattended-Upgrade::SyslogEnable" in line:
                     line = line.replace("//", "")
+                if "Unattended-Upgrade::Remove-New-Unused-Dependencies" in line:
+                    line = line.replace("//", "")
+                    line = line.replace("false", "true")
+                if "Unattended-Upgrade::Remove-Unused-Dependencies" in line:
+                    line = line.replace("//", "")
+                    line = line.replace("false", "true")
+
                 file.write(line)
 
         console.print(Text("Lignes spécifiques décommentées dans le fichier de configuration.", style="green"))

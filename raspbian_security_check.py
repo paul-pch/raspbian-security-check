@@ -3,6 +3,8 @@ from rich.panel import Panel
 from rich.text import Text
 
 import steps.security as security
+import steps.users as users
+import steps.network as network
 
 def main():
     console = Console()
@@ -15,6 +17,8 @@ def main():
 
 
     security.update_security(console)
+    users.configure_users(console)
+    network.configure_network_security(console)
 
 if __name__ == "__main__":
     main()
